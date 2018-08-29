@@ -1,0 +1,166 @@
+<html>
+<head>
+  <title>我的服务器</title>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+  <style>
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .page__bd {
+      width: 100%;
+      height: 100%;
+    }
+    .bottom-bar {
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+    }
+  </style>
+  <link rel="stylesheet" href="//res.wx.qq.com/open/libs/weui/1.1.2/weui.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+<body>
+  <div id="app" class="page">
+    <div id="toast" v-show="showToast">
+      <div class="weui-mask_transparent"></div>
+      <div class="weui-toast">
+          <i class="weui-icon-success-no-circle weui-icon_toast"></i>
+          <p class="weui-toast__content">连接成功</p>
+      </div>
+    </div>
+    <!-- 服务器信息输入页面 -->
+    <div v-if="processList" class="page__bd">
+      <div v-for="item in processList" class="weui-panel weui-panel_access">
+        <div class="weui-panel__hd">{{item.name}}</div>
+        <div class="weui-panel__bd">
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">开启进程</div>
+            <div class="weui-cell__ft">
+              <input class="weui-switch" :checked="item.state === 20" @change="switchServerStatus(item)" type="checkbox">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-else class="page__bd">
+      <div class="weui-cells__title">连接设置</div>
+      <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+          <div class="weui-cell__hd"><label class="weui-label">IP地址</label></div>
+          <div class="weui-cell__bd">
+            <input v-model="newServer.ip" class="weui-input" type="text" placeholder="服务器的IP地址">
+          </div>
+        </div>
+        <div class="weui-cell">
+          <div class="weui-cell__hd"><label class="weui-label">端口号</label></div>
+          <div class="weui-cell__bd">
+            <input v-model="newServer.port" class="weui-input" type="number" pattern="[0-9]*" placeholder="服务的端口号">
+          </div>
+        </div>
+        <div class="weui-cell">
+          <div class="weui-cell__hd"><label class="weui-label">用户名</label></div>
+          <div class="weui-cell__bd">
+            <input v-model="newServer.username" class="weui-input" type="text" placeholder="用户名">
+          </div>
+        </div>
+        <div class="weui-cell">
+          <div class="weui-cell__hd"><label class="weui-label">密码</label></div>
+          <div class="weui-cell__bd">
+            <input v-model="newServer.password" class="weui-input" type="password" placeholder="密码">
+          </div>
+        </div>
+      </div>
+      <div class="weui-cells__title">其他设置</div>
+      <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+          <div class="weui-cell__hd"><label class="weui-label">标签</label></div>
+          <div class="weui-cell__bd">
+            <input v-model="newServer.mark" class="weui-input" type="text" placeholder="连接备注">
+          </div>
+        </div>
+      </div>
+      <div class="bottom-bar">
+        <div class="weui-btn-area" @click="checkServer">
+          <a class="weui-btn weui-btn_primary" href="javascript:" id="showTooltips">确定</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let app = new Vue({
+      el: '#app',
+      data: {
+        showToast: false,
+        newServer: {
+          ip: '',
+          port: '',
+          username: '',
+          password: '',
+          mark: ''
+        },
+        processList: null
+      },
+      methods: {
+        checkServer () {
+          const newServer = this.newServer
+          // 待完善
+          if (newServer.ip && newServer.port && newServer.username && newServer.password) {
+            $get(`./getState/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}`, (res) => {
+              console.log(res)
+              // 判断服务是否正常
+              if (res.statecode === 1) {
+                this.showToast = true
+                localStorage.visor = JSON.stringify([newServer])
+                setTimeout(() => {
+                  this.showToast = false
+                  $get(`./getAllProcessInfo/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}`, (res) => {
+                    console.log(res)
+                    this.processList = res
+                  })
+                }, 500)
+              }
+            })
+          } else {
+            console.error('信息输入不全!')
+          }
+        },
+        switchServerStatus (item) {
+          const newServer = this.newServer
+          if (item.state === 20) {
+            // 关闭进程
+            $get(`./stopProcess/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}/${item.name}`, (res) => {
+              console.log(res)
+            })
+          } else {
+            // 开启进程
+            $get(`./startProcess/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}/${item.name}`, (res) => {
+              console.log(res)
+            })
+          }
+        }
+      },
+      mounted () {
+        const config = JSON.parse(localStorage.visor)
+        if (config) {
+          console.log('读取到配置信息:', config)
+          this.newServer = config[0]
+        }
+      }
+    })
+    function $get (url, fn){
+      const obj = new XMLHttpRequest()        
+      obj.open('GET', url, true)
+      obj.onreadystatechange = function(){
+        if (obj.readyState === 4 && obj.status === 200 || obj.status === 304) {
+          if (fn) fn.call(this, JSON.parse(obj.responseText))
+        }
+      }
+      obj.send(null)
+    }
+  </script>
+</body>
+</html>
