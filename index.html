@@ -31,21 +31,7 @@
           <p class="weui-toast__content">连接成功</p>
       </div>
     </div>
-    <!-- 服务器信息输入页面 -->
-    <div v-if="processList" class="page__bd">
-      <div v-for="item in processList" class="weui-panel weui-panel_access">
-        <div class="weui-panel__hd">{{item.name}}</div>
-        <div class="weui-panel__bd">
-          <div class="weui-cell weui-cell_switch">
-            <div class="weui-cell__bd">开启进程</div>
-            <div class="weui-cell__ft">
-              <input class="weui-switch" :checked="item.state === 20" @change="switchServerStatus(item)" type="checkbox">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-else class="page__bd">
+    <div class="page__bd">
       <div class="weui-cells__title">连接设置</div>
       <div class="weui-cells weui-cells_form">
         <div class="weui-cell">
@@ -101,8 +87,7 @@
           username: '',
           password: '',
           mark: ''
-        },
-        processList: null
+        }
       },
       methods: {
         checkServer () {
@@ -116,38 +101,27 @@
                 this.showToast = true
                 localStorage.visor = JSON.stringify([newServer])
                 setTimeout(() => {
-                  this.showToast = false
-                  $get(`./getAllProcessInfo/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}`, (res) => {
-                    console.log(res)
-                    this.processList = res
-                  })
+                  window.location.href = '/control'
                 }, 500)
               }
             })
           } else {
             console.error('信息输入不全!')
           }
-        },
-        switchServerStatus (item) {
-          const newServer = this.newServer
-          if (item.state === 20) {
-            // 关闭进程
-            $get(`./stopProcess/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}/${item.name}`, (res) => {
-              console.log(res)
-            })
-          } else {
-            // 开启进程
-            $get(`./startProcess/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}/${item.name}`, (res) => {
-              console.log(res)
-            })
-          }
         }
       },
       mounted () {
-        const config = JSON.parse(localStorage.visor)
+        let config = localStorage.visor
         if (config) {
-          console.log('读取到配置信息:', config)
-          this.newServer = config[0]
+          config = JSON.parse(config)
+          if (config) {
+            console.log('读取到配置信息:', config)
+            window.location.href = 'control'
+          } else {
+            console.error('配置信息格式错误!')
+          }
+        } else {
+          console.log('没有读取到配置信息!')
         }
       }
     })

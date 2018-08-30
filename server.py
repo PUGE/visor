@@ -11,6 +11,11 @@ def index():
   file_object = io.open('index.html','r', encoding='UTF-8')
   return file_object.read()
 
+@app.route('/control')
+def control():
+  file_object = io.open('control.html','r', encoding='UTF-8')
+  return file_object.read()
+
 # 登录服务器获取服务器信息
 @app.route('/getState/<ip>/<port>/<username>/<password>')
 def getState(ip, port, username, password):
