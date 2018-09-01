@@ -94,7 +94,7 @@
           const newServer = this.newServer
           // 待完善
           if (newServer.ip && newServer.port && newServer.username && newServer.password) {
-            $get(`./getState/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}`, (res) => {
+            $get(`http://xn--9tr.com:5001/getState/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}`, (res) => {
               console.log(res)
               // 判断服务是否正常
               if (res.statecode === 1) {

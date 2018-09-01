@@ -96,12 +96,12 @@
           const newServer = this.newServer
           if (item.state === 20) {
             // 关闭进程
-            $get(`./stopProcess/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}/${item.name}`, (res) => {
+            $get(`http://xn--9tr.com:5001/stopProcess/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}/${item.name}`, (res) => {
               console.log(res)
             })
           } else {
             // 开启进程
-            $get(`./startProcess/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}/${item.name}`, (res) => {
+            $get(`http://xn--9tr.com:5001/startProcess/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}/${item.name}`, (res) => {
               console.log(res)
             })
           }
@@ -116,7 +116,7 @@
           const newServer = config[this.serverIndex]
           this.newServer = newServer
           console.log(newServer)
-          $get(`./getAllProcessInfo/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}`, (res) => {
+          $get(`http://xn--9tr.com:5001/getAllProcessInfo/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}`, (res) => {
             console.log(res)
             this.processList = res
           })
