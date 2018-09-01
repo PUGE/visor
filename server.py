@@ -2,7 +2,10 @@
 import json
 import xmlrpc.client
 from flask import Flask
+from flask_cors import CORS
+
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 
 # 登录服务器获取服务器信息
 @app.route('/getState/<ip>/<port>/<username>/<password>')
