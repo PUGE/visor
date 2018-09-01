@@ -30,7 +30,7 @@
           <label class="weui-label">服务器</label>
         </div>
         <div class="weui-cell__bd">
-          <select v-model="serverIndex" class="weui-select" name="select2">
+          <select v-model="serverIndex" @change="getServerInfo" class="weui-select" name="select2">
             <option v-for="(item, ind) in serverList" :value="ind">{{item.mark}}</option>
           </select>
         </div>
@@ -41,7 +41,7 @@
         </div>
         <div class="weui-cell__ft">{{processList.length}}</div>
       </div>
-      <a class="weui-cell weui-cell_access" href="/?add">
+      <a class="weui-cell weui-cell_access" href="/visor/?add=1">
         <div class="weui-cell__bd">
           <p>添加服务器</p>
         </div>
@@ -78,6 +78,13 @@
           </div>
           <div class="weui-cell__ft">{{new Date(item.stop * 1000).toLocaleString()}}</div>
         </div>
+        <a class="weui-cell weui-cell_access" href="/?add">
+          <div class="weui-cell__bd">
+            <p>查看日志</p>
+          </div>
+          <div class="weui-cell__ft">
+          </div>
+        </a>
       </div>
     </div>
   </div>
@@ -92,6 +99,23 @@
         processList: null
       },
       methods: {
+        getServerInfo () {
+          let config = localStorage.visor
+          if (config) {
+            config = JSON.parse(config)
+            this.serverList = config
+            // console.log(this.serverList)
+            const newServer = config[this.serverIndex]
+            this.newServer = newServer
+            console.log(newServer)
+            $get(`http://xn--9tr.com:5001/getAllProcessInfo/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}`, (res) => {
+              console.log(res)
+              this.processList = res
+            })
+          } else {
+            window.location.href = '/'
+          }
+        },
         switchServerStatus (item) {
           const newServer = this.newServer
           if (item.state === 20) {
@@ -108,21 +132,7 @@
         }
       },
       mounted () {
-        let config = localStorage.visor
-        if (config) {
-          config = JSON.parse(config)
-          this.serverList = config
-          console.log(this.serverList)
-          const newServer = config[this.serverIndex]
-          this.newServer = newServer
-          console.log(newServer)
-          $get(`http://xn--9tr.com:5001/getAllProcessInfo/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}`, (res) => {
-            console.log(res)
-            this.processList = res
-          })
-        } else {
-          window.location.href = '/'
-        }
+        this.getServerInfo()
       }
     })
     function $get (url, fn){

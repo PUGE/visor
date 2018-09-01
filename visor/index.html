@@ -77,15 +77,16 @@
   </div>
 
   <script>
+    // 因为服务器只有一个 微信除了80端口以外的页面会被区别对待 所以写成绝对路径
     let app = new Vue({
       el: '#app',
       data: {
         showToast: false,
         newServer: {
-          ip: '',
+          ip: '140.143.207.13',
           port: '9001',
-          username: '',
-          password: '',
+          username: 'puge',
+          password: 'mmit7750',
           mark: ''
         }
       },
@@ -99,24 +100,40 @@
               // 判断服务是否正常
               if (res.statecode === 1) {
                 this.showToast = true
-                localStorage.visor = JSON.stringify([newServer])
+                if (localStorage.visor) {
+                  let temp = JSON.parse(localStorage.visor)
+                  temp.push(newServer)
+                  console.log(temp)
+                  localStorage.visor = JSON.stringify(temp)
+                } else {
+                  localStorage.visor = JSON.stringify([newServer])
+                }
                 setTimeout(() => {
-                  window.location.href = '/control'
+                  window.location.href = 'control.html'
                 }, 500)
               }
             })
           } else {
             console.error('信息输入不全!')
           }
+        },
+        getQueryString (name) { 
+          var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i")
+          var r = window.location.search.substr(1).match(reg)
+          if (r != null) return unescape(r[2])
+          return null
         }
       },
       mounted () {
+        console.log(this.getQueryString('add'))
+        if (this.getQueryString('add') === '1') return
+        return
         let config = localStorage.visor
         if (config) {
           config = JSON.parse(config)
           if (config) {
             console.log('读取到配置信息:', config)
-            window.location.href = 'control'
+            window.location.href = 'control.html'
           } else {
             console.error('配置信息格式错误!')
           }
