@@ -127,7 +127,6 @@
       mounted () {
         console.log(this.getQueryString('add'))
         if (this.getQueryString('add') === '1') return
-        return
         let config = localStorage.visor
         if (config) {
           config = JSON.parse(config)

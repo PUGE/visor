@@ -78,7 +78,7 @@
           </div>
           <div class="weui-cell__ft">{{new Date(item.stop * 1000).toLocaleString()}}</div>
         </div>
-        <a class="weui-cell weui-cell_access" href="/?add">
+        <a class="weui-cell weui-cell_access" :href="'/visor/log.html?name=' + item.name">
           <div class="weui-cell__bd">
             <p>查看日志</p>
           </div>
