@@ -133,6 +133,10 @@
       },
       mounted () {
         this.getServerInfo()
+        // 禁止页面拖动
+        document.body.addEventListener('touchmove', (e) => {
+          e.preventDefault()
+        })
       }
     })
     function $get (url, fn){

@@ -139,6 +139,10 @@
         } else {
           console.log('没有读取到配置信息!')
         }
+        // 禁止页面拖动
+        document.body.addEventListener('touchmove', (e) => {
+          e.preventDefault()
+        })
       }
     })
     function $get (url, fn){
