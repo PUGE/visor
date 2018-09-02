@@ -24,7 +24,7 @@
 </head>
 <body>
   <div id="app" class="page">
-
+    <pre class="log">{{log}}</pre>
   </div>
 
   <script>
@@ -32,17 +32,32 @@
     let app = new Vue({
       el: '#app',
       data: {
-        showToast: false,
-        newServer: {
-        }
+        serverIndex: 0,
+        log: ''
       },
       methods: {
+        getQueryString (name) { 
+          var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i")
+          var r = window.location.search.substr(1).match(reg)
+          if (r != null) return unescape(r[2])
+          return null
+        }
+      },
+      created () {
+        let config = localStorage.visor
+        if (config) {
+          config = JSON.parse(config)
+          const newServer = config[this.serverIndex]
+          console.log(newServer)
+          $get(`http://xn--9tr.com:5001/readProcessStdoutLog/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}/${this.getQueryString('name')}/0/0`, (res) => {
+            console.log(res)
+            this.log = res
+          })
+        } else {
+          window.location.href = '/visor'
+        }
       },
       mounted () {
-        $get(`http://xn--9tr.com:5001/readProcessStdoutLog/${newServer.ip}/${newServer.port}/${newServer.username}/${newServer.password}/ECS/1/100`, (res) => {
-          console.log(res)
-          // this.processList = res
-        })
       }
     })
     function $get (url, fn){
